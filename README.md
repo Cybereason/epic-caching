@@ -1,4 +1,4 @@
-# Epic caching - Utilities for caching
+# Epic caching &mdash; Utilities for caching
 [![Epic-caching CI](https://github.com/Cybereason/epic-caching/actions/workflows/ci.yml/badge.svg)](https://github.com/Cybereason/epic-caching/actions/workflows/ci.yml)
 
 
@@ -66,6 +66,12 @@ assert func(4) is func(4)
 ```
 If instead we used `@cached(scope='thread')`, repeated calls with the same arguments within the same thread would
 return the same object, but not in different threads.
+
+> ⚠️ **Caching methods:**  
+> The decorator does not handle methods any differently than regular functions, i.e. `self` is
+> treated like any other argument. This means that, for a `@cached` method, if any member of `self` has changed,
+> the method would be re-calculated. If caching is required only for the method arguments
+> (all arguments except `self`), consider using either a static method or `cached_call`.
 
 To cache all instances of a class, use the `Cached` metaclass:
 ```python
