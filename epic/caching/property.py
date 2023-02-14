@@ -1,8 +1,9 @@
 import os
-import pickle
 from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import TypeVar, Generic, Callable, overload, Any
+
+from epic.common.io import pload, pdump
 
 from ._cache import ProcessCache, KT, VT
 
@@ -214,16 +215,14 @@ class _OwnedPicklerCache(_OwnedCache[KT, VT]):
             return super().retrieve()
         filename = self.filename
         if os.path.exists(filename):
-            with open(filename, 'rb') as f:
-                item = pickle.load(f, fix_imports=True, encoding='ASCII', errors='strict')
+            item = pload(filename)
             super().insert(item)
             return item
         raise KeyError(self.key)
 
     def insert(self, item: VT) -> None:
         super().insert(item)
-        with open(self.filename, 'wb') as f:
-            pickle.dump(item, f, protocol=pickle.HIGHEST_PROTOCOL, fix_imports=True)
+        pdump(item, self.filename)
 
     def clear(self) -> None:
         filename = self.filename

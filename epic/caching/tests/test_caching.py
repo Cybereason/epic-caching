@@ -1,11 +1,11 @@
 import os
-import pickle
 import pytest
 import random
 import operator
 import threading
 from functools import partial
 
+from epic.common.io import pload
 from epic.caching import (
     Singleton,
     cached_call,
@@ -189,8 +189,7 @@ def test_pickled_cached_property(tmp_path):
 
     def check_file(filename, expected_content):
         assert os.path.exists(filename)
-        with open(filename, 'rb') as f:
-            assert pickle.load(f, fix_imports=True, encoding='ASCII', errors='strict') == expected_content
+        assert pload(filename) == expected_content
 
     x = 3
     obj = HasPickledCachedProperty(x)

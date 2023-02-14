@@ -15,6 +15,7 @@ setup:
     - epic/caching
   install_requires:
     - decorator
+    - epic-common
 
   classifiers:
     - "Development Status :: 4 - Beta"

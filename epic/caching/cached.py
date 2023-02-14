@@ -1,12 +1,11 @@
 import inspect
-import logging
 
-from io import IOBase
 from functools import partial
 from decorator import decorator
-from types import MappingProxyType
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from typing import TypeVar, ParamSpec, Concatenate, Literal, Any
+
+from epic.common.general import hash_content
 
 from ._cache import Cache, ThreadCache, ProcessCache
 
@@ -14,29 +13,6 @@ from ._cache import Cache, ThreadCache, ProcessCache
 T = TypeVar('T')
 P = ParamSpec('P')
 Scope = Literal['thread', 'process']
-
-
-def _hash_content(obj) -> int:
-    typename = type(obj).__name__
-    if isinstance(obj, logging.getLoggerClass()):
-        obj = obj.name
-    elif hasattr(obj, '__dict__'):
-        if isinstance(obj.__dict__, MappingProxyType):
-            objdict = {k: v for k, v in obj.__dict__.items() if not k.startswith('__')}
-        else:
-            objdict = obj.__dict__.copy()
-        objdict['___name'] = getattr(obj, '__name__', None)
-        objdict['___classname'] = typename
-        if isinstance(obj, dict):
-            obj = obj.copy()
-            obj['___objdict'] = objdict
-        else:
-            obj = objdict
-    if isinstance(obj, dict):
-        obj = frozenset((k, _hash_content(v)) for k, v in obj.items())
-    elif isinstance(obj, Iterable) and not isinstance(obj, str | bytes | bytearray | IOBase):
-        obj = tuple(_hash_content(x) for x in obj)
-    return hash((obj, typename))
 
 
 def _cached_call_impl(
@@ -59,7 +35,7 @@ def _cached_call_impl(
     else:
         # Add an extra argument for 'self'
         bound_args = inspect.signature(init_method).bind(None, *args, **kwargs)
-    key = _hash_content(bound_args.arguments)
+    key = hash_content(bound_args.arguments)
     cache: Cache[int, T] = cache_class(name)
     if key not in cache:
         with cache.lock(key):
