@@ -21,8 +21,8 @@ git fetch --tags --force
 python -m pip install -U 'quicklib>=2.4'
 quicklib-setup sdist --formats=zip
 python -m pip install dist/*.zip \
-  --extra-index-url http://epic-framework.s3-website-us-east-1.amazonaws.com \
-  --trusted-host epic-framework.s3-website-us-east-1.amazonaws.com
+  --extra-index-url https://d2dsindf03djlb.cloudfront.net
+
 
 #
 # run the tests
